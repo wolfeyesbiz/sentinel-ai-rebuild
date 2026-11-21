@@ -16,11 +16,11 @@ export const LiveTrafficDrawer: React.FC<LiveTrafficDrawerProps> = ({
   if (!isOpen) return null;
 
   return (
-    <div className="fixed inset-y-0 right-0 z-50 w-full sm:w-[480px] bg-[#0A1929] border-l border-[#1E3A5F] shadow-2xl flex flex-col">
+    <div className="fixed inset-y-0 right-0 z-50 w-full sm:w-[480px] bg-[var(--color-paper-2)] border-l border-[var(--color-rule)] shadow-2xl flex flex-col">
       {/* Header */}
-      <div className="bg-[#0F2137] border-b border-[#1E3A5F] px-5 py-4 flex items-center justify-between">
+      <div className="bg-[var(--color-sidebar)] border-b border-[var(--color-rule)] px-5 py-4 flex items-center justify-between">
         <div className="flex items-center gap-2.5">
-          <Activity className="w-5 h-5 text-[#00D9FF] animate-pulse" />
+          <Activity className="w-5 h-5 text-[var(--color-accent)] animate-pulse" />
           <div>
             <h3 className="font-mono font-bold text-sm text-white">LIVE TRAFFIC INSPECTOR</h3>
             <span className="text-[10px] font-mono text-emerald-400 flex items-center gap-1">
@@ -32,7 +32,7 @@ export const LiveTrafficDrawer: React.FC<LiveTrafficDrawerProps> = ({
 
         <button
           onClick={onClose}
-          className="p-1 rounded text-slate-400 hover:text-white hover:bg-[#1E3A5F] transition-all cursor-pointer"
+          className="p-1 rounded text-slate-400 hover:text-white hover:bg-[var(--color-rule)] transition-all cursor-pointer"
         >
           <X className="w-4 h-4" />
         </button>
@@ -51,7 +51,7 @@ export const LiveTrafficDrawer: React.FC<LiveTrafficDrawerProps> = ({
                 className={`p-2.5 rounded border transition-all ${
                   isBlocked
                     ? 'bg-red-950/40 border-red-800 text-red-200'
-                    : 'bg-[#06101E] border-[#1E3A5F] text-slate-300'
+                    : 'bg-[var(--color-paper-3)] border-[var(--color-rule)] text-slate-300'
                 }`}
               >
                 <div className="flex items-center justify-between mb-1">
@@ -74,7 +74,7 @@ export const LiveTrafficDrawer: React.FC<LiveTrafficDrawerProps> = ({
                   </span>
                 </div>
 
-                <div className="text-[11px] text-[#00D9FF] truncate mb-1" title={pkt.path}>
+                <div className="text-[11px] text-[var(--color-accent)] truncate mb-1" title={pkt.path}>
                   {pkt.path}
                 </div>
 
@@ -89,7 +89,7 @@ export const LiveTrafficDrawer: React.FC<LiveTrafficDrawerProps> = ({
       </div>
 
       {/* Footer */}
-      <div className="bg-[#0F2137] border-t border-[#1E3A5F] p-3 text-center text-xs font-mono text-slate-400">
+      <div className="bg-[var(--color-sidebar)] border-t border-[var(--color-rule)] p-3 text-center text-xs font-mono text-slate-400">
         Sliding buffer: last {packets.length} packets
       </div>
     </div>

@@ -56,16 +56,16 @@ export const ThreatDetailModal: React.FC<ThreatDetailModalProps> = ({
 
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center p-3 sm:p-6 bg-black/80 backdrop-blur-sm overflow-y-auto">
-      <div className="bg-[#0A1929] border border-[#1E3A5F] w-full max-w-4xl rounded-xl shadow-2xl overflow-hidden flex flex-col max-h-[92vh]">
+      <div className="bg-[var(--color-paper-2)] border border-[var(--color-rule)] w-full max-w-4xl rounded-xl shadow-2xl overflow-hidden flex flex-col max-h-[92vh]">
         {/* Modal Top Header */}
-        <div className="bg-[#0F2137] border-b border-[#1E3A5F] px-6 py-4 flex items-center justify-between">
+        <div className="bg-[var(--color-sidebar)] border-b border-[var(--color-rule)] px-6 py-4 flex items-center justify-between">
           <div className="flex items-center gap-3">
-            <div className="p-2 rounded bg-[#FF1744]/15 border border-[#FF1744]/30 text-[#FF1744]">
+            <div className="p-2 rounded bg-[var(--color-bad)]/15 border border-[var(--color-bad)]/30 text-[var(--color-bad)]">
               <ShieldAlert className="w-6 h-6 animate-pulse" />
             </div>
             <div>
               <div className="flex items-center gap-2">
-                <span className="text-xs font-mono font-bold px-2 py-0.5 rounded bg-[#FF1744]/20 text-[#FF1744] border border-[#FF1744]/40">
+                <span className="text-xs font-mono font-bold px-2 py-0.5 rounded bg-[var(--color-bad)]/20 text-[var(--color-bad)] border border-[var(--color-bad)]/40">
                   {alert.severity.toUpperCase()} THREAT DETECTED
                 </span>
                 <span className="text-xs font-mono text-emerald-400 bg-emerald-950/60 px-2 py-0.5 rounded border border-emerald-800">
@@ -80,14 +80,14 @@ export const ThreatDetailModal: React.FC<ThreatDetailModalProps> = ({
 
           <button
             onClick={onClose}
-            className="p-1.5 rounded-lg text-slate-400 hover:text-white hover:bg-[#1E3A5F]/50 transition-all cursor-pointer"
+            className="p-1.5 rounded-lg text-slate-400 hover:text-white hover:bg-[var(--color-rule)]/50 transition-all cursor-pointer"
           >
             <X className="w-5 h-5" />
           </button>
         </div>
 
         {actionMessage && (
-          <div className="bg-[#00D9FF]/15 border-b border-[#00D9FF]/30 px-6 py-2 text-xs font-mono text-[#00D9FF] flex items-center justify-between">
+          <div className="bg-[var(--color-accent)]/15 border-b border-[var(--color-accent)]/30 px-6 py-2 text-xs font-mono text-[var(--color-accent)] flex items-center justify-between">
             <span>{actionMessage}</span>
             <button onClick={() => setActionMessage(null)} className="underline cursor-pointer">dismiss</button>
           </div>
@@ -96,8 +96,8 @@ export const ThreatDetailModal: React.FC<ThreatDetailModalProps> = ({
         {/* Modal Scrollable Body */}
         <div className="p-6 overflow-y-auto space-y-6 text-sm font-sans text-slate-200">
           {/* SECTION 1: ATTACK DETAILS */}
-          <div className="border border-[#1E3A5F] rounded-lg p-4 bg-[#06101E]/80">
-            <h4 className="text-xs font-mono font-bold tracking-widest text-[#00D9FF] uppercase mb-3 flex items-center gap-1.5">
+          <div className="border border-[var(--color-rule)] rounded-lg p-4 bg-[var(--color-paper-3)]/80">
+            <h4 className="text-xs font-mono font-bold tracking-widest text-[var(--color-accent)] uppercase mb-3 flex items-center gap-1.5">
               <Terminal className="w-4 h-4" />
               ATTACK DETAILS
             </h4>
@@ -110,7 +110,7 @@ export const ThreatDetailModal: React.FC<ThreatDetailModalProps> = ({
               </div>
               <div>
                 <span className="text-slate-400 block">Target:</span>
-                <span className="text-[#00D9FF] break-all">{alert.target}</span>
+                <span className="text-[var(--color-accent)] break-all">{alert.target}</span>
               </div>
               <div>
                 <span className="text-slate-400 block">Attack Vector:</span>
@@ -118,7 +118,7 @@ export const ThreatDetailModal: React.FC<ThreatDetailModalProps> = ({
               </div>
               <div>
                 <span className="text-slate-400 block">Risk Score:</span>
-                <span className="text-lg font-bold text-[#FF1744]">{alert.risk_score.toFixed(2)} / 1.0</span>
+                <span className="text-lg font-bold text-[var(--color-bad)]">{alert.risk_score.toFixed(2)} / 1.0</span>
               </div>
             </div>
 
@@ -142,7 +142,7 @@ export const ThreatDetailModal: React.FC<ThreatDetailModalProps> = ({
 
           {/* SECTION 2: IMPACT ASSESSMENT */}
           {remediation && (
-            <div className="border border-[#1E3A5F] rounded-lg p-4 bg-[#06101E]/80">
+            <div className="border border-[var(--color-rule)] rounded-lg p-4 bg-[var(--color-paper-3)]/80">
               <h4 className="text-xs font-mono font-bold tracking-widest text-amber-400 uppercase mb-3 flex items-center gap-1.5">
                 <AlertTriangle className="w-4 h-4" />
                 IMPACT ASSESSMENT
@@ -150,7 +150,7 @@ export const ThreatDetailModal: React.FC<ThreatDetailModalProps> = ({
               <div className="space-y-2 text-xs font-mono">
                 <div>
                   <span className="text-slate-400">Potential Damage: </span>
-                  <span className="text-[#FF1744] font-semibold">{remediation.impact_assessment.potential_damage}</span>
+                  <span className="text-[var(--color-bad)] font-semibold">{remediation.impact_assessment.potential_damage}</span>
                 </div>
                 <div>
                   <span className="text-slate-400">Data at Risk: </span>
@@ -165,15 +165,15 @@ export const ThreatDetailModal: React.FC<ThreatDetailModalProps> = ({
           )}
 
           {/* SECTION 3: IMMEDIATE ACTIONS TAKEN BY SENTINEL AI */}
-          <div className="border border-[#00C853]/30 rounded-lg p-4 bg-[#00C853]/5">
-            <h4 className="text-xs font-mono font-bold tracking-widest text-[#00C853] uppercase mb-3 flex items-center gap-1.5">
+          <div className="border border-[var(--color-ok)]/30 rounded-lg p-4 bg-[var(--color-ok)]/5">
+            <h4 className="text-xs font-mono font-bold tracking-widest text-[var(--color-ok)] uppercase mb-3 flex items-center gap-1.5">
               <CheckCircle2 className="w-4 h-4" />
               IMMEDIATE ACTIONS TAKEN BY SENTINEL AI
             </h4>
             <ul className="space-y-1.5 text-xs font-mono text-slate-300">
               {remediation?.immediate_actions_taken.map((action, i) => (
                 <li key={i} className="flex items-start gap-2">
-                  <span className="text-[#00C853] font-bold">✓</span>
+                  <span className="text-[var(--color-ok)] font-bold">✓</span>
                   <span>{action}</span>
                 </li>
               ))}
@@ -181,14 +181,14 @@ export const ThreatDetailModal: React.FC<ThreatDetailModalProps> = ({
           </div>
 
           {/* SECTION 4: HOW TO FIX THIS NOW */}
-          <div className="border border-[#1E3A5F] rounded-lg p-4 bg-[#06101E]/80">
+          <div className="border border-[var(--color-rule)] rounded-lg p-4 bg-[var(--color-paper-3)]/80">
             <h4 className="text-xs font-mono font-bold tracking-widest text-cyan-300 uppercase mb-3 flex items-center gap-1.5">
               <span>🔧</span>
               HOW TO FIX THIS NOW
             </h4>
             <div className="space-y-3 text-xs font-mono">
               {remediation?.how_to_fix_now.map((step, idx) => (
-                <div key={idx} className="bg-[#0A1929] p-3 rounded border border-[#1E3A5F]">
+                <div key={idx} className="bg-[var(--color-paper-2)] p-3 rounded border border-[var(--color-rule)]">
                   <p className="text-slate-200">{step}</p>
                 </div>
               ))}
@@ -196,19 +196,19 @@ export const ThreatDetailModal: React.FC<ThreatDetailModalProps> = ({
           </div>
 
           {/* SECTION 5: HOW TO PREVENT THIS IN THE FUTURE */}
-          <div className="border border-[#1E3A5F] rounded-lg p-4 bg-[#06101E]/80">
-            <h4 className="text-xs font-mono font-bold tracking-widest text-[#00D9FF] uppercase mb-3 flex items-center gap-1.5">
+          <div className="border border-[var(--color-rule)] rounded-lg p-4 bg-[var(--color-paper-3)]/80">
+            <h4 className="text-xs font-mono font-bold tracking-widest text-[var(--color-accent)] uppercase mb-3 flex items-center gap-1.5">
               <Code2 className="w-4 h-4" />
               🛡️ HOW TO PREVENT THIS IN THE FUTURE (CODE & CONFIG)
             </h4>
             <div className="space-y-4">
               {remediation?.prevention_measures.map((measure, idx) => (
-                <div key={idx} className="bg-[#0A1929] rounded-lg p-4 border border-[#1E3A5F]">
+                <div key={idx} className="bg-[var(--color-paper-2)] rounded-lg p-4 border border-[var(--color-rule)]">
                   <div className="flex items-center justify-between mb-1.5">
                     <h5 className="text-xs font-mono font-bold text-white">
                       {idx + 1}. {measure.title}
                     </h5>
-                    <span className="text-[10px] font-mono px-2 py-0.5 rounded bg-[#0F2137] text-cyan-400 border border-[#1E3A5F] uppercase">
+                    <span className="text-[10px] font-mono px-2 py-0.5 rounded bg-[var(--color-sidebar)] text-cyan-400 border border-[var(--color-rule)] uppercase">
                       {measure.priority}
                     </span>
                   </div>
@@ -219,7 +219,7 @@ export const ThreatDetailModal: React.FC<ThreatDetailModalProps> = ({
                   {/* Code snippet if present */}
                   {measure.code_example && (
                     <div className="relative mb-2">
-                      <div className="flex items-center justify-between bg-[#06101E] px-3 py-1.5 rounded-t text-[11px] font-mono text-slate-400 border-x border-t border-[#1E3A5F]">
+                      <div className="flex items-center justify-between bg-[var(--color-paper-3)] px-3 py-1.5 rounded-t text-[11px] font-mono text-slate-400 border-x border-t border-[var(--color-rule)]">
                         <span>Code Implementation Fix</span>
                         <button
                           onClick={() => handleCopy(measure.code_example || '', `code_${idx}`)}
@@ -229,7 +229,7 @@ export const ThreatDetailModal: React.FC<ThreatDetailModalProps> = ({
                           <span>{copiedCode === `code_${idx}` ? 'Copied' : 'Copy'}</span>
                         </button>
                       </div>
-                      <pre className="bg-black/90 p-3 rounded-b overflow-x-auto text-xs font-mono text-emerald-400 border border-[#1E3A5F]">
+                      <pre className="bg-black/90 p-3 rounded-b overflow-x-auto text-xs font-mono text-emerald-400 border border-[var(--color-rule)]">
                         <code>{measure.code_example}</code>
                       </pre>
                     </div>
@@ -238,7 +238,7 @@ export const ThreatDetailModal: React.FC<ThreatDetailModalProps> = ({
                   {/* Configuration directive if present */}
                   {measure.configuration && (
                     <div className="relative">
-                      <div className="flex items-center justify-between bg-[#06101E] px-3 py-1.5 rounded-t text-[11px] font-mono text-slate-400 border-x border-t border-[#1E3A5F]">
+                      <div className="flex items-center justify-between bg-[var(--color-paper-3)] px-3 py-1.5 rounded-t text-[11px] font-mono text-slate-400 border-x border-t border-[var(--color-rule)]">
                         <span>WAF / Reverse Proxy Configuration Directive</span>
                         <button
                           onClick={() => handleCopy(measure.configuration || '', `conf_${idx}`)}
@@ -248,7 +248,7 @@ export const ThreatDetailModal: React.FC<ThreatDetailModalProps> = ({
                           <span>{copiedCode === `conf_${idx}` ? 'Copied' : 'Copy'}</span>
                         </button>
                       </div>
-                      <pre className="bg-black/90 p-3 rounded-b overflow-x-auto text-xs font-mono text-amber-300 border border-[#1E3A5F]">
+                      <pre className="bg-black/90 p-3 rounded-b overflow-x-auto text-xs font-mono text-amber-300 border border-[var(--color-rule)]">
                         <code>{measure.configuration}</code>
                       </pre>
                     </div>
@@ -260,7 +260,7 @@ export const ThreatDetailModal: React.FC<ThreatDetailModalProps> = ({
         </div>
 
         {/* Modal Bottom Actions */}
-        <div className="bg-[#0F2137] border-t border-[#1E3A5F] px-6 py-4 flex flex-col sm:flex-row items-center justify-between gap-3">
+        <div className="bg-[var(--color-sidebar)] border-t border-[var(--color-rule)] px-6 py-4 flex flex-col sm:flex-row items-center justify-between gap-3">
           <div className="flex items-center gap-2">
             <button
               onClick={handlePermanentBlock}
@@ -274,7 +274,7 @@ export const ThreatDetailModal: React.FC<ThreatDetailModalProps> = ({
             <button
               onClick={handleUnblock}
               disabled={isUnblocking}
-              className="flex items-center gap-1.5 px-3 py-2 rounded bg-[#0F2744] hover:bg-[#1E3A5F] text-slate-200 border border-[#1E3A5F] font-mono text-xs font-semibold transition-all cursor-pointer disabled:opacity-50"
+              className="flex items-center gap-1.5 px-3 py-2 rounded bg-[var(--color-accent-soft)] hover:bg-[var(--color-rule)] text-slate-200 border border-[var(--color-rule)] font-mono text-xs font-semibold transition-all cursor-pointer disabled:opacity-50"
             >
               <Unlock className="w-3.5 h-3.5 text-slate-400" />
               <span>{isUnblocking ? 'Unblocking...' : 'Unblock IP'}</span>
@@ -283,7 +283,7 @@ export const ThreatDetailModal: React.FC<ThreatDetailModalProps> = ({
 
           <button
             onClick={onClose}
-            className="w-full sm:w-auto px-5 py-2 rounded bg-[#0A1929] hover:bg-[#132B47] text-slate-300 border border-[#1E3A5F] font-mono text-xs font-semibold transition-all cursor-pointer"
+            className="w-full sm:w-auto px-5 py-2 rounded bg-[var(--color-paper-2)] hover:bg-[var(--color-rule)] text-slate-300 border border-[var(--color-rule)] font-mono text-xs font-semibold transition-all cursor-pointer"
           >
             Dismiss / Close
           </button>

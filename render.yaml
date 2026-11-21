@@ -1,20 +1,13 @@
 services:
-  # ──────────────────────────────────────────────────────────────────
-  # Backend — FastAPI Web Service (Python)
-  # ──────────────────────────────────────────────────────────────────
   - type: web
-    name: sentinel-ai-backend
-    runtime: python
+    name: sentinel-ai-rebuild
+    runtime: docker
     region: oregon
     plan: free
-    rootDir: backend
-    buildCommand: pip install -r ../requirements.txt
-    startCommand: uvicorn app.main:app --host 0.0.0.0 --port $PORT
+    healthCheckPath: /docs
     envVars:
       - key: ENVIRONMENT
         value: production
-      - key: FRONTEND_URL
-        value: https://sentinel-ai-frontend-a1s0.onrender.com
       - key: ANOMALY_THRESHOLD
         value: "0.70"
       - key: AUTO_BLOCK_CRITICAL
@@ -23,28 +16,3 @@ services:
         value: /tmp/sentinel.db
       - key: PYTHONUNBUFFERED
         value: "1"
-
-  # ──────────────────────────────────────────────────────────────────
-  # Frontend — React + Vite Static Site
-  # ──────────────────────────────────────────────────────────────────
-  - type: web
-    name: sentinel-ai-frontend
-    runtime: static
-    rootDir: frontend
-    buildCommand: npm install && npm run build
-    staticPublishPath: dist
-    envVars:
-      # Assigned Render backend URL for the current Blueprint instance
-      - key: VITE_API_BASE_URL
-        value: https://sentinel-ai-backend-a1s0.onrender.com
-    headers:
-      - path: /*
-        name: X-Frame-Options
-        value: DENY
-      - path: /*
-        name: X-Content-Type-Options
-        value: nosniff
-    routes:
-      - type: rewrite
-        source: /*
-        destination: /index.html

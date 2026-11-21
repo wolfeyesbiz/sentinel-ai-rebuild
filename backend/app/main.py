@@ -181,8 +181,10 @@ async def require_dashboard_login(request, call_next):
     if request.method != "OPTIONS" and path.startswith(f"{settings.API_PREFIX}/") and not is_auth_route and not is_site_telemetry:
         authorization = request.headers.get("authorization", "")
         token = authorization[7:].strip() if authorization.lower().startswith("bearer ") else request.cookies.get(COOKIE_NAME)
-        if not get_session_user(token):
+        user = get_session_user(token)
+        if not user:
             return JSONResponse({"detail": "Sign in to access Sentinel AI."}, status_code=401)
+        request.state.user = user
     return await call_next(request)
 
 # Real-time WebSocket connection

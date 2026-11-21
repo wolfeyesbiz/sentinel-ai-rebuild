@@ -41,9 +41,9 @@ export const SecurityReportModal: React.FC<SecurityReportModalProps> = ({
 
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center p-3 sm:p-6 bg-black/80 backdrop-blur-sm overflow-y-auto">
-      <div className="bg-[#0A1929] border border-[#1E3A5F] w-full max-w-4xl rounded-xl shadow-2xl overflow-hidden flex flex-col max-h-[92vh]">
+      <div className="bg-[var(--color-paper-2)] border border-[var(--color-rule)] w-full max-w-4xl rounded-xl shadow-2xl overflow-hidden flex flex-col max-h-[92vh]">
         {/* Header */}
-        <div className="bg-[#0F2137] border-b border-[#1E3A5F] px-6 py-4 flex items-center justify-between">
+        <div className="bg-[var(--color-sidebar)] border-b border-[var(--color-rule)] px-6 py-4 flex items-center justify-between">
           <div className="flex items-center gap-3">
             <div className="p-2 rounded bg-emerald-500/15 border border-emerald-500/30 text-emerald-400">
               <FileText className="w-6 h-6" />
@@ -61,14 +61,14 @@ export const SecurityReportModal: React.FC<SecurityReportModalProps> = ({
           <div className="flex items-center gap-2">
             <button
               onClick={handlePrint}
-              className="flex items-center gap-1.5 px-3 py-1.5 rounded bg-[#0F2744] hover:bg-[#1E3A5F] text-slate-200 border border-[#1E3A5F] text-xs font-mono cursor-pointer"
+              className="flex items-center gap-1.5 px-3 py-1.5 rounded bg-[var(--color-accent-soft)] hover:bg-[var(--color-rule)] text-slate-200 border border-[var(--color-rule)] text-xs font-mono cursor-pointer"
             >
-              <Printer className="w-3.5 h-3.5 text-[#00D9FF]" />
+              <Printer className="w-3.5 h-3.5 text-[var(--color-accent)]" />
               <span>Print / PDF</span>
             </button>
             <button
               onClick={onClose}
-              className="p-1.5 rounded-lg text-slate-400 hover:text-white hover:bg-[#1E3A5F]/50 transition-all cursor-pointer"
+              className="p-1.5 rounded-lg text-slate-400 hover:text-white hover:bg-[var(--color-rule)]/50 transition-all cursor-pointer"
             >
               <X className="w-5 h-5" />
             </button>
@@ -82,8 +82,8 @@ export const SecurityReportModal: React.FC<SecurityReportModalProps> = ({
           ) : (
             <>
               {/* Executive Summary */}
-              <div className="bg-[#06101E] border border-[#1E3A5F] rounded-lg p-5">
-                <div className="flex items-center justify-between mb-4 border-b border-[#1E3A5F] pb-3">
+              <div className="bg-[var(--color-paper-3)] border border-[var(--color-rule)] rounded-lg p-5">
+                <div className="flex items-center justify-between mb-4 border-b border-[var(--color-rule)] pb-3">
                   <div>
                     <h3 className="text-sm font-bold text-white tracking-wide">
                       STOREFRONT SECURITY POSTURE OVERVIEW
@@ -98,25 +98,25 @@ export const SecurityReportModal: React.FC<SecurityReportModalProps> = ({
                 </div>
 
                 <div className="grid grid-cols-2 sm:grid-cols-4 gap-4">
-                  <div className="bg-[#0A1929] p-3 rounded border border-[#1E3A5F]">
+                  <div className="bg-[var(--color-paper-2)] p-3 rounded border border-[var(--color-rule)]">
                     <span className="text-slate-400 block text-[10px]">TOTAL THREATS BLOCKED</span>
-                    <span className="text-xl font-bold text-[#00D9FF]">
+                    <span className="text-xl font-bold text-[var(--color-accent)]">
                       {report?.threat_summary?.threats_blocked_today || 47}
                     </span>
                   </div>
-                  <div className="bg-[#0A1929] p-3 rounded border border-[#1E3A5F]">
+                  <div className="bg-[var(--color-paper-2)] p-3 rounded border border-[var(--color-rule)]">
                     <span className="text-slate-400 block text-[10px]">ACTIVE IP BANS</span>
                     <span className="text-xl font-bold text-red-400">
                       {report?.threat_summary?.active_ip_blocks || 2}
                     </span>
                   </div>
-                  <div className="bg-[#0A1929] p-3 rounded border border-[#1E3A5F]">
+                  <div className="bg-[var(--color-paper-2)] p-3 rounded border border-[var(--color-rule)]">
                     <span className="text-slate-400 block text-[10px]">DETECTION ACCURACY</span>
                     <span className="text-xl font-bold text-emerald-400">
                       {report?.threat_summary?.detection_accuracy_percentage}%
                     </span>
                   </div>
-                  <div className="bg-[#0A1929] p-3 rounded border border-[#1E3A5F]">
+                  <div className="bg-[var(--color-paper-2)] p-3 rounded border border-[var(--color-rule)]">
                     <span className="text-slate-400 block text-[10px]">FALSE POSITIVE RATE</span>
                     <span className="text-xl font-bold text-slate-300">
                       {report?.threat_summary?.false_positive_rate_percentage}%
@@ -126,13 +126,13 @@ export const SecurityReportModal: React.FC<SecurityReportModalProps> = ({
               </div>
 
               {/* Compliance Posture */}
-              <div className="bg-[#06101E] border border-[#1E3A5F] rounded-lg p-5">
-                <h3 className="text-xs font-bold text-[#00D9FF] tracking-wider uppercase mb-3 flex items-center gap-1.5">
+              <div className="bg-[var(--color-paper-3)] border border-[var(--color-rule)] rounded-lg p-5">
+                <h3 className="text-xs font-bold text-[var(--color-accent)] tracking-wider uppercase mb-3 flex items-center gap-1.5">
                   <ShieldCheck className="w-4 h-4 text-emerald-400" />
                   REGULATORY & COMPLIANCE VERIFICATION
                 </h3>
                 <div className="space-y-2.5">
-                  <div className="flex items-start justify-between border-b border-[#1E3A5F]/60 pb-2">
+                  <div className="flex items-start justify-between border-b border-[var(--color-rule)]/60 pb-2">
                     <div>
                       <span className="font-bold text-white block">PCI-DSS 4.0 Requirement 6.4.2</span>
                       <span className="text-slate-400 text-[11px]">Web Application Firewall (WAF) detecting SQLi and XSS injection vectors.</span>
@@ -140,7 +140,7 @@ export const SecurityReportModal: React.FC<SecurityReportModalProps> = ({
                     <span className="text-emerald-400 font-bold whitespace-nowrap">COMPLIANT ✓</span>
                   </div>
 
-                  <div className="flex items-start justify-between border-b border-[#1E3A5F]/60 pb-2">
+                  <div className="flex items-start justify-between border-b border-[var(--color-rule)]/60 pb-2">
                     <div>
                       <span className="font-bold text-white block">PCI-DSS Requirement 10</span>
                       <span className="text-slate-400 text-[11px]">Automated, immutable audit trail for all authentication and payment security events.</span>
@@ -148,12 +148,12 @@ export const SecurityReportModal: React.FC<SecurityReportModalProps> = ({
                     <span className="text-emerald-400 font-bold whitespace-nowrap">COMPLIANT ✓</span>
                   </div>
 
-                  <div className="flex items-start justify-between border-b border-[#1E3A5F]/60 pb-2">
+                  <div className="flex items-start justify-between border-b border-[var(--color-rule)]/60 pb-2">
                     <div>
                       <span className="font-bold text-white block">OWASP Top 10 (2025/2026) Coverage</span>
                       <span className="text-slate-400 text-[11px]">Injection, Broken Auth, Cryptographic Failures, Security Misconfig, SSRF.</span>
                     </div>
-                    <span className="text-[#00D9FF] font-bold whitespace-nowrap">100% COVERED</span>
+                    <span className="text-[var(--color-accent)] font-bold whitespace-nowrap">100% COVERED</span>
                   </div>
 
                   <div className="flex items-start justify-between">
@@ -167,7 +167,7 @@ export const SecurityReportModal: React.FC<SecurityReportModalProps> = ({
               </div>
 
               {/* Recent Critical Findings */}
-              <div className="bg-[#06101E] border border-[#1E3A5F] rounded-lg p-5">
+              <div className="bg-[var(--color-paper-3)] border border-[var(--color-rule)] rounded-lg p-5">
                 <h3 className="text-xs font-bold text-red-400 tracking-wider uppercase mb-3">
                   RECENT AUDIT INCIDENT LOGS
                 </h3>
@@ -176,7 +176,7 @@ export const SecurityReportModal: React.FC<SecurityReportModalProps> = ({
                     <div className="text-slate-400">Zero active critical breach events.</div>
                   ) : (
                     report?.critical_findings?.map((item: any) => (
-                      <div key={item.id} className="bg-[#0A1929] p-2.5 rounded border border-[#1E3A5F] flex items-center justify-between">
+                      <div key={item.id} className="bg-[var(--color-paper-2)] p-2.5 rounded border border-[var(--color-rule)] flex items-center justify-between">
                         <div>
                           <span className="font-bold text-white">{item.threat_type.toUpperCase()}</span>
                           <span className="text-slate-400 ml-2">from {item.source_ip} ({item.country})</span>
@@ -197,10 +197,10 @@ export const SecurityReportModal: React.FC<SecurityReportModalProps> = ({
         </div>
 
         {/* Footer */}
-        <div className="bg-[#0F2137] border-t border-[#1E3A5F] px-6 py-3 flex justify-end">
+        <div className="bg-[var(--color-sidebar)] border-t border-[var(--color-rule)] px-6 py-3 flex justify-end">
           <button
             onClick={onClose}
-            className="px-4 py-2 rounded bg-[#0A1929] hover:bg-[#132B47] text-slate-300 border border-[#1E3A5F] font-mono text-xs cursor-pointer"
+            className="px-4 py-2 rounded bg-[var(--color-paper-2)] hover:bg-[var(--color-rule)] text-slate-300 border border-[var(--color-rule)] font-mono text-xs cursor-pointer"
           >
             Close
           </button>

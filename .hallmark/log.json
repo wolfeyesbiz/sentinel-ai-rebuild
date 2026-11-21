@@ -1,0 +1,34 @@
+[
+    {
+        "mode":  "redesign",
+        "depth":  "full",
+        "scope":  "app",
+        "date":  "2026-11-21",
+        "genre":  "modern-minimal",
+        "shape":  "app screen",
+        "theme":  "console",
+        "axes":  "dark/grotesk-sans/chromatic-emerald",
+        "hero":  "dashboard heading and live telemetry overview",
+        "nav":  "kept left rail and compact top bar",
+        "footer":  "none",
+        "imagery":  "live request timeline",
+        "entry":  "dashboard",
+        "fingerprint":  "app-screen-console-emerald-live-timeline-severity-table",
+        "sections":  [
+                         "status row",
+                         "host measurements",
+                         "request timeline",
+                         "alert severity",
+                         "activity table"
+                     ],
+        "signature":  "request timeline from received traffic packets",
+        "photos":  [
+
+                   ],
+        "waived":  [
+
+                   ],
+        "prompt":  "Sentinel AI security operations dashboard, existing dark emerald identity, telemetry and alert response",
+        "data":  "actual loaded traffic packets, alert records, and system metrics only"
+    }
+]

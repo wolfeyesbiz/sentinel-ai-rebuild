@@ -1,6 +1,7 @@
-"""Website integrations: passive HTTPS checks and authenticated telemetry intake."""
+"""Website integrations: ownership-verified passive checks and key-authenticated telemetry intake."""
 import asyncio
 import ipaddress
+import logging
 import re
 import secrets
 import socket
@@ -10,7 +11,7 @@ from datetime import datetime, timezone
 from urllib.parse import urlencode, urljoin, urlparse, urlunparse
 
 import httpx
-from fastapi import APIRouter, File, Header, HTTPException, UploadFile
+from fastapi import APIRouter, File, Header, HTTPException, Request, UploadFile
 from pydantic import BaseModel, Field
 
 from app.core.engine import threat_engine
@@ -22,6 +23,12 @@ integrations: dict[str, dict] = {}
 last_assessment_at: dict[str, float] = {}
 last_host_assessment_at: dict[str, float] = {}
 last_code_scan_at: dict[str, float] = {}
+last_verify_at: dict[str, float] = {}
+audit = logging.getLogger("sentinel.audit")
+MAX_SITES_PER_USER = 5
+VERIFY_PATH = "/.well-known/sentinel-verify.txt"
+VERIFICATION_TTL_SECONDS = 30 * 24 * 60 * 60  # ownership must be re-proven monthly
+PRIVATE_KEYS = {"key", "owner_id", "verification_token", "verified_ts"}
 MAX_RESPONSE_BYTES = 256_000
 ASSESSMENT_INTERVAL_SECONDS = 30
 REDIRECT_CODES = (301, 302, 303, 307, 308)
@@ -35,13 +42,67 @@ HEADER_FIXES = {
 }
 
 
+# ── Ownership & access control ────────────────────────────────────────────────
+# Sentinel never sends a request to a site (or reads a source archive for it)
+# until the signed-in user has proven they control that site.
+
+def _user_id(request: Request) -> str:
+    user = getattr(request.state, "user", None)
+    if not user:
+        raise HTTPException(401, "Sign in to access Sentinel AI.")
+    return user["id"]
+
+
+def _owned(integration_id: str, request: Request) -> dict:
+    item = integrations.get(integration_id)
+    # 404 (not 403) so users cannot discover other people's integrations.
+    if not item or item.get("owner_id") != _user_id(request):
+        raise HTTPException(404, "Integration not found.")
+    return item
+
+
+def _verified(integration_id: str, request: Request, action: str) -> dict:
+    item = _owned(integration_id, request)
+    if item.get("verified") and time.time() - item.get("verified_ts", 0) > VERIFICATION_TTL_SECONDS:
+        item["verified"] = False
+    if not item.get("verified"):
+        raise HTTPException(403, "Prove you own this website first. Sentinel only runs checks against sites you have verified.")
+    audit.info("action=%s user=%s site=%s", action, item["owner_id"], urlparse(item["url"]).hostname)
+    return item
+
+
+def _verification_instructions(item: dict) -> dict:
+    host = urlparse(item["url"]).hostname
+    token = item["verification_token"]
+    return {"token": token, "methods": [
+        {"id": "meta", "title": "Meta tag (easiest on Shopify, Wix, WooCommerce)",
+         "how": f'Add <meta name="sentinel-verification" content="{token}"> inside the <head> of your homepage.'},
+        {"id": "file", "title": "Verification file",
+         "how": f"Publish a plain-text file at https://{host}{VERIFY_PATH} containing exactly: {token}"},
+        {"id": "dns", "title": "DNS TXT record",
+         "how": f"Add a TXT record for _sentinel-verify.{host} with the value {token}"},
+    ]}
+
+
+def _public(item: dict) -> dict:
+    data = {k: v for k, v in item.items() if k not in PRIVATE_KEYS}
+    if not item.get("verified"):
+        data["verification"] = _verification_instructions(item)
+    return data
+
+
+def _dns_has_token(host: str, token: str) -> bool:
+    try:
+        import dns.resolver  # optional dependency (dnspython)
+        answers = dns.resolver.resolve(f"_sentinel-verify.{host}", "TXT", lifetime=5)
+        return any(token in b"".join(record.strings).decode("utf-8", "ignore") for record in answers)
+    except Exception:
+        return False
+
+
 class IntegrationCreate(BaseModel):
     name: str = Field(min_length=1, max_length=80)
     url: str = Field(min_length=8, max_length=2048)
-
-
-class RepositoryScanRequest(BaseModel):
-    repository_url: str = Field(min_length=16, max_length=500)
 
 
 def _validated_url(value: str) -> str:
@@ -68,14 +129,12 @@ async def _assessment_target(item: dict, render_only: bool = False) -> tuple[str
     return target, host
 
 
-async def _begin_assessment(integration_id: str, render_only: bool = False) -> tuple[str, str]:
-    item = integrations.get(integration_id)
-    if not item:
-        raise HTTPException(404, "Integration not found.")
-    target, host = await _assessment_target(item, render_only)
+async def _begin_assessment(integration_id: str, request: Request, action: str) -> tuple[str, str]:
+    item = _verified(integration_id, request, action)
+    target, host = await _assessment_target(item)
     now = time.monotonic()
     if now - last_assessment_at.get(integration_id, 0) < ASSESSMENT_INTERVAL_SECONDS or now - last_host_assessment_at.get(host, 0) < ASSESSMENT_INTERVAL_SECONDS:
-        raise HTTPException(429, "This demo was assessed recently. Wait 30 seconds before running another assessment.")
+        raise HTTPException(429, "This site was assessed recently. Wait 30 seconds before running another assessment.")
     last_assessment_at[integration_id] = now
     last_host_assessment_at[host] = now
     return target, host
@@ -173,36 +232,70 @@ def _run_safe_probes(baseline_body: str, xss_marker: str, xss_response: dict, sq
 
 
 @router.get("")
-async def list_integrations():
-    return [{k: v for k, v in item.items() if k != "key"} for item in integrations.values()]
+async def list_integrations(request: Request):
+    uid = _user_id(request)
+    return [_public(item) for item in integrations.values() if item.get("owner_id") == uid]
 
 
 @router.post("")
-async def add_integration(body: IntegrationCreate):
+async def add_integration(body: IntegrationCreate, request: Request):
+    uid = _user_id(request)
+    if sum(1 for item in integrations.values() if item.get("owner_id") == uid) >= MAX_SITES_PER_USER:
+        raise HTTPException(400, f"You can connect up to {MAX_SITES_PER_USER} websites.")
     url = await asyncio.to_thread(_validated_url, body.url)
-    item = {"id": uuid.uuid4().hex[:12], "name": body.name.strip(), "url": url,
+    item = {"id": uuid.uuid4().hex[:12], "owner_id": uid, "name": body.name.strip(), "url": url,
             "key": secrets.token_urlsafe(32), "status": "not_checked", "checked_at": None,
+            "verified": False, "verified_at": None, "verified_ts": 0, "verified_method": None,
+            "verification_token": "sentinel-verify-" + secrets.token_hex(16),
             "http_status": None, "latency_ms": None, "last_event_at": None,
             "event_count": 0, "threat_count": 0, "last_scan_at": None,
             "last_scan_findings": None, "last_simulation_at": None}
     integrations[item["id"]] = item
-    return {k: v for k, v in item.items() if k != "key"} | {"integration_key": item["key"]}
+    audit.info("action=add user=%s site=%s", uid, urlparse(url).hostname)
+    return _public(item) | {"integration_key": item["key"]}
 
 
 @router.delete("/{integration_id}")
-async def remove_integration(integration_id: str):
-    if integrations.pop(integration_id, None) is None:
-        raise HTTPException(404, "Integration not found.")
+async def remove_integration(integration_id: str, request: Request):
+    _owned(integration_id, request)
+    integrations.pop(integration_id, None)
     last_assessment_at.pop(integration_id, None)
     last_code_scan_at.pop(integration_id, None)
+    last_verify_at.pop(integration_id, None)
     return {"success": True}
 
 
+@router.post("/{integration_id}/verify")
+async def verify_ownership(integration_id: str, request: Request):
+    item = _owned(integration_id, request)
+    now = time.monotonic()
+    if now - last_verify_at.get(integration_id, 0) < 10:
+        raise HTTPException(429, "Wait 10 seconds before checking again.")
+    last_verify_at[integration_id] = now
+    target = await asyncio.to_thread(_validated_url, item["url"])
+    host = (urlparse(target).hostname or "").lower()
+    token = item["verification_token"]
+    method = None
+    async with httpx.AsyncClient(timeout=httpx.Timeout(12.0, connect=6.0), follow_redirects=False, headers={"User-Agent": "SentinelAI-OwnershipCheck/1.0"}) as client:
+        home = await _get_root_following(client, f"https://{host}/")
+        if home.get("status_code") == 200 and re.search(r"<meta\b[^>]*sentinel-verification[^>]*" + re.escape(token), home["body"], re.I):
+            method = "meta"
+        if not method:
+            proof = await _get_root(client, f"https://{host}{VERIFY_PATH}")
+            if proof["status_code"] == 200 and secrets.compare_digest(proof["body"].strip(), token):
+                method = "file"
+    if not method and await asyncio.to_thread(_dns_has_token, host, token):
+        method = "dns"
+    if not method:
+        raise HTTPException(400, "Sentinel could not find the verification token on that site yet. Add it, wait a minute for caches or DNS to update, and try again.")
+    item.update(verified=True, verified_method=method, verified_ts=time.time(), verified_at=datetime.now(timezone.utc).isoformat())
+    audit.info("action=verified user=%s site=%s method=%s", item["owner_id"], host, method)
+    return _public(item)
+
+
 @router.post("/{integration_id}/check")
-async def check_site(integration_id: str):
-    item = integrations.get(integration_id)
-    if not item:
-        raise HTTPException(404, "Integration not found.")
+async def check_site(integration_id: str, request: Request):
+    item = _verified(integration_id, request, "check")
     await asyncio.to_thread(_validated_url, item["url"])
     started = datetime.now(timezone.utc)
     try:
@@ -217,13 +310,11 @@ async def check_site(integration_id: str):
     except httpx.HTTPError:
         item["status"], item["http_status"], item["latency_ms"] = "unreachable", None, None
     item["checked_at"] = datetime.now(timezone.utc).isoformat()
-    return {k: v for k, v in item.items() if k != "key"}
+    return _public(item)
 
 
-def _begin_code_scan(integration_id: str) -> dict:
-    item = integrations.get(integration_id)
-    if not item:
-        raise HTTPException(404, "Integration not found.")
+def _begin_code_scan(integration_id: str, request: Request) -> dict:
+    item = _verified(integration_id, request, "source_upload")
     now = time.monotonic()
     if now - last_code_scan_at.get(integration_id, 0) < 45:
         raise HTTPException(429, "This source was scanned recently. Wait 45 seconds before scanning it again.")
@@ -242,65 +333,9 @@ def _finish_code_scan(item: dict, result: dict) -> dict:
     return result
 
 
-async def _download_github_zip(owner: str, repository: str) -> bytes:
-    api_url = f"https://api.github.com/repos/{owner}/{repository}/zipball"
-    headers = {"User-Agent": "SentinelAI-AuthorizedSourceReview/1.0", "Accept": "application/vnd.github+json"}
-    async with httpx.AsyncClient(timeout=httpx.Timeout(25.0, connect=8.0), follow_redirects=False, headers=headers) as client:
-        async with client.stream("GET", api_url) as response:
-            if response.status_code in (301, 302, 303, 307, 308):
-                redirect = response.headers.get("location", "")
-                parsed_redirect = urlparse(redirect)
-                if parsed_redirect.scheme != "https" or parsed_redirect.hostname != "codeload.github.com" or parsed_redirect.username or parsed_redirect.password or parsed_redirect.port not in (None, 443):
-                    raise HTTPException(502, "GitHub returned an unexpected archive location.")
-                archive_url = redirect
-            elif response.status_code == 200:
-                archive_url = ""
-                chunks = bytearray()
-                async for chunk in response.aiter_bytes():
-                    chunks.extend(chunk)
-                    if len(chunks) > MAX_ARCHIVE_BYTES:
-                        raise HTTPException(413, "The repository archive is larger than the 12 MB source-review limit.")
-                return bytes(chunks)
-            elif response.status_code == 404:
-                raise HTTPException(404, "Repository not found or not publicly accessible.")
-            elif response.status_code == 403:
-                raise HTTPException(429, "GitHub declined the download. Check its public access or try again later.")
-            else:
-                raise HTTPException(502, f"GitHub could not provide the source archive (HTTP {response.status_code}).")
-        async with client.stream("GET", archive_url) as response:
-            if response.status_code != 200:
-                raise HTTPException(502, f"GitHub archive download failed (HTTP {response.status_code}).")
-            chunks = bytearray()
-            async for chunk in response.aiter_bytes():
-                chunks.extend(chunk)
-                if len(chunks) > MAX_ARCHIVE_BYTES:
-                    raise HTTPException(413, "The repository archive is larger than the 12 MB source-review limit.")
-            return bytes(chunks)
-
-
-@router.post("/{integration_id}/source/github")
-async def scan_github_source(integration_id: str, body: RepositoryScanRequest):
-    item = _begin_code_scan(integration_id)
-    parsed = urlparse(body.repository_url.strip())
-    parts = [part for part in parsed.path.split("/") if part]
-    if parsed.scheme != "https" or parsed.hostname != "github.com" or parsed.username or parsed.password or parsed.port not in (None, 443):
-        raise HTTPException(400, "Enter a public HTTPS GitHub repository URL.")
-    if len(parts) != 2 or not all(re.fullmatch(r"[A-Za-z0-9_.-]+", part) for part in parts):
-        raise HTTPException(400, "Use a repository URL in the form https://github.com/owner/repository.")
-    owner, repository = parts
-    if repository.endswith(".git"):
-        repository = repository[:-4]
-    archive = await _download_github_zip(owner, repository)
-    try:
-        result = scan_source_archive(archive, f"github.com/{owner}/{repository}")
-    except ValueError as exc:
-        raise HTTPException(400, str(exc)) from exc
-    return _finish_code_scan(item, result)
-
-
 @router.post("/{integration_id}/source/upload")
-async def scan_uploaded_source(integration_id: str, file: UploadFile = File(...)):
-    item = _begin_code_scan(integration_id)
+async def scan_uploaded_source(integration_id: str, request: Request, file: UploadFile = File(...)):
+    item = _begin_code_scan(integration_id, request)
     if not file.filename or not file.filename.lower().endswith(".zip"):
         raise HTTPException(400, "Upload a .zip source archive.")
     archive = await file.read(MAX_ARCHIVE_BYTES + 1)
@@ -315,8 +350,8 @@ async def scan_uploaded_source(integration_id: str, file: UploadFile = File(...)
 
 
 @router.post("/{integration_id}/scan")
-async def scan_site(integration_id: str):
-    target, _host = await _begin_assessment(integration_id)
+async def scan_site(integration_id: str, request: Request):
+    target, _host = await _begin_assessment(integration_id, request, "scan")
     item = integrations[integration_id]
     async with httpx.AsyncClient(timeout=httpx.Timeout(12.0, connect=6.0), follow_redirects=False, max_redirects=0, headers={"User-Agent": "SentinelAI-SecurityReview/1.0 (passive checks)"}) as client:
         baseline = await _get_root_following(client, target)
@@ -426,8 +461,8 @@ async def scan_site(integration_id: str):
 
 
 @router.post("/{integration_id}/simulate")
-async def simulate_safe_probes(integration_id: str):
-    target, _host = await _begin_assessment(integration_id, render_only=True)
+async def simulate_safe_probes(integration_id: str, request: Request):
+    target, _host = await _begin_assessment(integration_id, request, "simulate")
     item = integrations[integration_id]
     xss_marker = "snt" + secrets.token_hex(5)
     sql_marker = "snt" + secrets.token_hex(5)
@@ -439,7 +474,7 @@ async def simulate_safe_probes(integration_id: str):
             _get_root(client, target, sql_marker + "'"),
         )
     if baseline["error"]:
-        raise HTTPException(502, f"The demo site could not be reached ({baseline['error']}).")
+        raise HTTPException(502, f"The site could not be reached ({baseline['error']}).")
     probes = _run_safe_probes(baseline["body"], xss_marker, xss_response, sql_response)
     item["last_simulation_at"] = datetime.now(timezone.utc).isoformat()
     return {

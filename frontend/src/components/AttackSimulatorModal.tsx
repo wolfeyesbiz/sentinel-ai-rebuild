@@ -139,9 +139,9 @@ export const AttackSimulatorModal: React.FC<AttackSimulatorModalProps> = ({
 
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center p-3 sm:p-6 bg-black/80 backdrop-blur-sm overflow-y-auto">
-      <div className="bg-[#0A1929] border border-[#1E3A5F] w-full max-w-4xl rounded-xl shadow-2xl overflow-hidden flex flex-col max-h-[92vh]">
+      <div className="bg-[var(--color-paper-2)] border border-[var(--color-rule)] w-full max-w-4xl rounded-xl shadow-2xl overflow-hidden flex flex-col max-h-[92vh]">
         {/* Header */}
-        <div className="bg-[#0F2137] border-b border-[#1E3A5F] px-6 py-4 flex items-center justify-between">
+        <div className="bg-[var(--color-sidebar)] border-b border-[var(--color-rule)] px-6 py-4 flex items-center justify-between">
           <div className="flex items-center gap-3">
             <div className="p-2 rounded bg-red-600/20 border border-red-500/40 text-red-400">
               <Zap className="w-6 h-6 animate-pulse" />
@@ -158,7 +158,7 @@ export const AttackSimulatorModal: React.FC<AttackSimulatorModalProps> = ({
 
           <button
             onClick={onClose}
-            className="p-1.5 rounded-lg text-slate-400 hover:text-white hover:bg-[#1E3A5F]/50 transition-all cursor-pointer"
+            className="p-1.5 rounded-lg text-slate-400 hover:text-white hover:bg-[var(--color-rule)]/50 transition-all cursor-pointer"
           >
             <X className="w-5 h-5" />
           </button>
@@ -180,8 +180,8 @@ export const AttackSimulatorModal: React.FC<AttackSimulatorModalProps> = ({
                     onClick={() => handleSelectScenario(sc)}
                     className={`text-left p-3 rounded-lg border transition-all cursor-pointer ${
                       isSelected
-                        ? 'bg-[#0F2744] border-[#00D9FF] shadow-[0_0_15px_rgba(0,217,255,0.2)]'
-                        : 'bg-[#06101E] border-[#1E3A5F] hover:border-slate-500'
+                        ? 'bg-[var(--color-accent-soft)] border-[var(--color-accent)] '
+                        : 'bg-[var(--color-paper-3)] border-[var(--color-rule)] hover:border-slate-500'
                     }`}
                   >
                     <div className="flex items-center justify-between mb-1">
@@ -189,7 +189,7 @@ export const AttackSimulatorModal: React.FC<AttackSimulatorModalProps> = ({
                         {sc.title}
                       </span>
                       {isSelected && (
-                        <span className="text-[10px] font-mono text-[#00D9FF] bg-[#00D9FF]/10 px-1.5 py-0.2 rounded border border-[#00D9FF]/30">
+                        <span className="text-[10px] font-mono text-[var(--color-accent)] bg-[var(--color-accent)]/10 px-1.5 py-0.2 rounded border border-[var(--color-accent)]/30">
                           SELECTED
                         </span>
                       )}
@@ -204,8 +204,8 @@ export const AttackSimulatorModal: React.FC<AttackSimulatorModalProps> = ({
           </div>
 
           {/* Config fields */}
-          <div className="border border-[#1E3A5F] rounded-lg p-4 bg-[#06101E]/80 space-y-3 font-mono text-xs">
-            <h4 className="font-bold text-[#00D9FF] uppercase tracking-wider mb-2">
+          <div className="border border-[var(--color-rule)] rounded-lg p-4 bg-[var(--color-paper-3)]/80 space-y-3 font-mono text-xs">
+            <h4 className="font-bold text-[var(--color-accent)] uppercase tracking-wider mb-2">
               2. SIMULATION PAYLOAD CONFIGURATION
             </h4>
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
@@ -215,7 +215,7 @@ export const AttackSimulatorModal: React.FC<AttackSimulatorModalProps> = ({
                   type="text"
                   value={customIP}
                   onChange={e => setCustomIP(e.target.value)}
-                  className="w-full bg-[#0A1929] border border-[#1E3A5F] rounded px-3 py-1.5 text-white focus:outline-none focus:border-[#00D9FF]"
+                  className="w-full bg-[var(--color-paper-2)] border border-[var(--color-rule)] rounded px-3 py-1.5 text-white focus:outline-none focus:border-[var(--color-accent)]"
                 />
               </div>
               <div>
@@ -224,7 +224,7 @@ export const AttackSimulatorModal: React.FC<AttackSimulatorModalProps> = ({
                   type="text"
                   value={customTarget}
                   onChange={e => setCustomTarget(e.target.value)}
-                  className="w-full bg-[#0A1929] border border-[#1E3A5F] rounded px-3 py-1.5 text-white focus:outline-none focus:border-[#00D9FF]"
+                  className="w-full bg-[var(--color-paper-2)] border border-[var(--color-rule)] rounded px-3 py-1.5 text-white focus:outline-none focus:border-[var(--color-accent)]"
                 />
               </div>
             </div>
@@ -236,15 +236,15 @@ export const AttackSimulatorModal: React.FC<AttackSimulatorModalProps> = ({
                 value={customPayload}
                 onChange={e => setCustomPayload(e.target.value)}
                 rows={2}
-                className="w-full bg-[#0A1929] border border-[#1E3A5F] rounded px-3 py-1.5 text-white focus:outline-none focus:border-[#00D9FF]"
+                className="w-full bg-[var(--color-paper-2)] border border-[var(--color-rule)] rounded px-3 py-1.5 text-white focus:outline-none focus:border-[var(--color-accent)]"
               />
             </div>
           </div>
 
           {/* Result card if simulated */}
           {lastResult && (
-            <div className="border border-[#00C853]/40 rounded-lg p-4 bg-[#00C853]/10 font-mono text-xs">
-              <div className="flex items-center gap-2 text-[#00C853] font-bold mb-2">
+            <div className="border border-[var(--color-ok)]/40 rounded-lg p-4 bg-[var(--color-ok)]/10 font-mono text-xs">
+              <div className="flex items-center gap-2 text-[var(--color-ok)] font-bold mb-2">
                 <CheckCircle2 className="w-4 h-4" />
                 <span>SIMULATED REQUEST ANALYZED BY SENTINEL AI</span>
               </div>
@@ -275,7 +275,7 @@ export const AttackSimulatorModal: React.FC<AttackSimulatorModalProps> = ({
         </div>
 
         {/* Footer */}
-        <div className="bg-[#0F2137] border-t border-[#1E3A5F] px-6 py-4 flex items-center justify-between">
+        <div className="bg-[var(--color-sidebar)] border-t border-[var(--color-rule)] px-6 py-4 flex items-center justify-between">
           <span className="text-xs font-mono text-slate-400 hidden sm:inline">
             Local Sentinel detection demo · does not send traffic to the target URL
           </span>
@@ -283,7 +283,7 @@ export const AttackSimulatorModal: React.FC<AttackSimulatorModalProps> = ({
           <div className="flex items-center gap-3">
             <button
               onClick={onClose}
-              className="px-4 py-2 rounded bg-[#0A1929] hover:bg-[#132B47] text-slate-300 border border-[#1E3A5F] font-mono text-xs cursor-pointer"
+              className="px-4 py-2 rounded bg-[var(--color-paper-2)] hover:bg-[var(--color-rule)] text-slate-300 border border-[var(--color-rule)] font-mono text-xs cursor-pointer"
             >
               Cancel
             </button>
@@ -291,7 +291,7 @@ export const AttackSimulatorModal: React.FC<AttackSimulatorModalProps> = ({
             <button
               onClick={handleLaunch}
               disabled={isSimulating}
-              className="flex items-center gap-2 px-5 py-2 rounded bg-gradient-to-r from-red-600 to-amber-600 hover:from-red-500 hover:to-amber-500 text-white font-mono text-xs font-bold shadow-[0_0_15px_rgba(255,23,68,0.4)] transition-all cursor-pointer disabled:opacity-50"
+              className="flex items-center gap-2 px-5 py-2 rounded bg-[var(--color-bad)] hover:brightness-110 text-[var(--color-paper-3)] text-white font-mono text-xs font-bold  transition-all cursor-pointer disabled:opacity-50"
             >
               <Play className="w-3.5 h-3.5 fill-current" />
               <span>{isSimulating ? 'Injecting Attack...' : 'Launch Attack Simulation'}</span>

@@ -1,0 +1,28 @@
+{
+    "scanned":  "2026-11-21",
+    "target":  "frontend/src/App.tsx, route /, signed-in dashboard screen",
+    "findings":  {
+                     "framework":  "Vite 8, React 19, TypeScript 7, Tailwind 4 (frontend/package.json)",
+                     "fonts":  "Plus Jakarta Sans and JetBrains Mono from frontend/index.html; Inter system fallback in frontend/src/index.css",
+                     "palette":  "Dark graphite and emerald utilities in frontend/src/App.tsx; #090909 ground in frontend/src/index.css; no locked design.md",
+                     "motion":  "CSS transitions in frontend/src/index.css and Tailwind transition utilities",
+                     "spacing":  "Tailwind default spacing; no custom spacing extension found",
+                     "icons":  "lucide-react 1.77.0",
+                     "charts":  "No chart package; existing activity data comes from REST and WebSocket handlers in frontend/src/App.tsx",
+                     "material":  "Existing dashboard copy, live system metrics, request packets, alert records, and connected modal actions"
+                 },
+    "preserve":  [
+                     "Sentinel AI name and existing dark emerald direction",
+                     "REST overview, alerts and traffic fetches and the authenticated WebSocket stream",
+                     "Navigation destinations, account controls, filtering, alert details, firewall, reports, simulator and integrations handlers",
+                     "Real telemetry labels and existing dashboard content"
+                 ],
+    "introduce":  [
+                      "Hallmark Console graphite surfaces and typography tokens",
+                      "A telemetry-backed request timeline with time-range and metric selectors",
+                      "An alert severity summary derived from loaded alerts",
+                      "Responsive compact host readings and explicit empty telemetry states",
+                      "A visible dashboard blueprint in DASHBOARD_BLUEPRINT.md"
+                  ],
+    "deal":  "Console (1/3), modern-minimal, dark instrument panels"
+}
